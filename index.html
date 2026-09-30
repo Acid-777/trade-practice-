@@ -297,7 +297,12 @@ CLEAR ALL DATA
 
 <div class="stats">
 
-<h3>Trading Statistics</h3>
+<h3>Performance Dashboard</h3>
+
+<div class="stat">
+Total P&L:
+<span id="dashboardPnl">₹0</span>
+</div>
 
 <div class="stat">
 Total Trades:
@@ -317,6 +322,21 @@ Losing Trades:
 <div class="stat">
 Win Rate:
 <span id="winRate">0%</span>
+</div>
+
+<div class="stat">
+Average Win:
+<span id="averageWin">₹0</span>
+</div>
+
+<div class="stat">
+Average Loss:
+<span id="averageLoss">₹0</span>
+</div>
+
+<div class="stat">
+Profit Factor:
+<span id="profitFactor">0</span>
 </div>
 
 </div>
@@ -1068,36 +1088,96 @@ position = null;
 
 function updateStats() {
 
-let total =
-wins + losses;
+  let total =
+    wins + losses;
 
-let winRate = 0;
+  let winRate = 0;
 
-if (total > 0) {
+  let totalWinningPnl = 0;
 
-winRate =
-(wins / total) * 100;
+  let totalLosingPnl = 0;
+
+  tradeHistory.forEach(function(trade) {
+
+    if (trade.pnl > 0) {
+
+      totalWinningPnl += trade.pnl;
+
+    } else if (trade.pnl < 0) {
+
+      totalLosingPnl += Math.abs(trade.pnl);
+
+    }
+
+  });
+
+  if (total > 0) {
+
+    winRate =
+      (wins / total) * 100;
+
+  }
+
+  let averageWin = 0;
+
+  if (wins > 0) {
+
+    averageWin =
+      totalWinningPnl / wins;
+
+  }
+
+  let averageLoss = 0;
+
+  if (losses > 0) {
+
+    averageLoss =
+      totalLosingPnl / losses;
+
+  }
+
+  let profitFactor = 0;
+
+  if (totalLosingPnl > 0) {
+
+    profitFactor =
+      totalWinningPnl / totalLosingPnl;
+
+  }
+
+  document.getElementById("dashboardPnl")
+    .textContent =
+    "₹" + totalPnl;
+
+  document.getElementById("totalTrades")
+    .textContent =
+    total;
+
+  document.getElementById("wins")
+    .textContent =
+    wins;
+
+  document.getElementById("losses")
+    .textContent =
+    losses;
+
+  document.getElementById("winRate")
+    .textContent =
+    winRate.toFixed(2) + "%";
+
+  document.getElementById("averageWin")
+    .textContent =
+    "₹" + averageWin.toFixed(2);
+
+  document.getElementById("averageLoss")
+    .textContent =
+    "₹" + averageLoss.toFixed(2);
+
+  document.getElementById("profitFactor")
+    .textContent =
+    profitFactor.toFixed(2);
 
 }
-
-document.getElementById("totalTrades")
-.textContent =
-total;
-
-document.getElementById("wins")
-.textContent =
-wins;
-
-document.getElementById("losses")
-.textContent =
-losses;
-
-document.getElementById("winRate")
-.textContent =
-winRate.toFixed(2) + "%";
-
-}
-
 
 /* CLEAR DATA */
 
