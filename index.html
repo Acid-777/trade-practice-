@@ -62,6 +62,13 @@ button {
   color: white;
 }
 
+.clear {
+  width: 92%;
+  background: #777;
+  color: white;
+  margin-top: 15px;
+}
+
 .price {
   font-size: 28px;
   font-weight: bold;
@@ -91,6 +98,8 @@ button {
   padding: 10px;
   margin: 8px 0;
   border-radius: 8px;
+  text-align: left;
+  font-size: 14px;
 }
 
 .stat {
@@ -210,6 +219,12 @@ No trades yet
 Total P&L: ₹0
 </div>
 
+<button
+class="clear"
+onclick="clearAllData()">
+CLEAR ALL DATA
+</button>
+
 </div>
 
 <div class="stats">
@@ -253,6 +268,139 @@ let tradeNumber = 0;
 let wins = 0;
 
 let losses = 0;
+
+let tradeHistory = [];
+
+
+/* LOAD SAVED DATA */
+
+function loadData() {
+
+let savedData =
+localStorage.getItem("tradePracticeData");
+
+if (!savedData) {
+  return;
+}
+
+try {
+
+let data =
+JSON.parse(savedData);
+
+balance =
+data.balance ?? 50000;
+
+totalPnl =
+data.totalPnl ?? 0;
+
+tradeNumber =
+data.tradeNumber ?? 0;
+
+wins =
+data.wins ?? 0;
+
+losses =
+data.losses ?? 0;
+
+tradeHistory =
+data.tradeHistory ?? [];
+
+} catch (error) {
+
+console.log("Could not load saved data");
+
+}
+
+}
+
+
+/* SAVE DATA */
+
+function saveData() {
+
+let data = {
+
+balance: balance,
+
+totalPnl: totalPnl,
+
+tradeNumber: tradeNumber,
+
+wins: wins,
+
+losses: losses,
+
+tradeHistory: tradeHistory
+
+};
+
+localStorage.setItem(
+"tradePracticeData",
+JSON.stringify(data)
+);
+
+}
+
+
+/* DISPLAY SAVED HISTORY */
+
+function displaySavedHistory() {
+
+let tradesContainer =
+document.getElementById("trades");
+
+tradesContainer.innerHTML = "";
+
+if (tradeHistory.length === 0) {
+
+tradesContainer.textContent =
+"No trades yet";
+
+return;
+}
+
+tradeHistory.forEach(function(trade) {
+
+let tradeElement =
+document.createElement("div");
+
+tradeElement.className =
+"trade";
+
+tradeElement.textContent =
+
+"#" + trade.number +
+" | " + trade.type +
+" | Qty: " + trade.quantity +
+" | Entry: ₹" + trade.entry +
+" | Exit: ₹" + trade.exit +
+" | SL: ₹" + trade.sl +
+" | Target: ₹" + trade.target +
+" | P&L: ₹" + trade.pnl;
+
+tradesContainer.appendChild(
+tradeElement
+);
+
+});
+
+}
+
+
+/* INITIALIZE */
+
+loadData();
+
+document.getElementById("balance").textContent =
+balance;
+
+document.getElementById("totalPnl").textContent =
+"Total P&L: ₹" + totalPnl;
+
+updateStats();
+
+displaySavedHistory();
 
 
 /* RISK / REWARD */
@@ -322,7 +470,7 @@ calculateRiskReward
 );
 
 
-/* OPEN BUY */
+/* BUY */
 
 function openBuy() {
 
@@ -396,7 +544,7 @@ document.getElementById("message").textContent =
 }
 
 
-/* OPEN SELL */
+/* SELL */
 
 function openSell() {
 
@@ -475,7 +623,6 @@ document.getElementById("message").textContent =
 function showPosition() {
 
 if (!position) {
-
 return;
 }
 
@@ -514,7 +661,7 @@ document.getElementById("pnl").textContent =
 }
 
 
-/* UPDATE MARKET PRICE */
+/* UPDATE PRICE */
 
 function updatePrice() {
 
@@ -540,8 +687,6 @@ return;
 showPosition();
 
 
-/* BUY SL / TARGET */
-
 if (position.type === "BUY") {
 
 if (current <= position.sl) {
@@ -563,10 +708,9 @@ position.target,
 
 return;
 }
+
 }
 
-
-/* SELL SL / TARGET */
 
 if (position.type === "SELL") {
 
@@ -626,7 +770,9 @@ pnl
 );
 
 document.getElementById("message").textContent =
-reason + " | P&L: ₹" + pnl;
+reason +
+" | P&L: ₹" +
+pnl;
 }
 
 
@@ -674,7 +820,8 @@ pnl
 );
 
 document.getElementById("message").textContent =
-"Trade exited | P&L: ₹" + pnl;
+"Trade exited | P&L: ₹" +
+pnl;
 }
 
 
@@ -684,6 +831,9 @@ function recordTrade(
 exitPrice,
 pnl
 ) {
+
+let oldPosition =
+position;
 
 balance += pnl;
 
@@ -700,7 +850,30 @@ wins++;
 losses++;
 }
 
-let oldPosition = position;
+
+let trade = {
+
+number: tradeNumber,
+
+type: oldPosition.type,
+
+quantity: oldPosition.quantity,
+
+entry: oldPosition.entry,
+
+exit: exitPrice,
+
+sl: oldPosition.sl,
+
+target: oldPosition.target,
+
+pnl: pnl
+
+};
+
+tradeHistory.push(trade);
+
+saveData();
 
 document.getElementById("balance").textContent =
 balance;
@@ -711,16 +884,7 @@ document.getElementById("positionInfo").textContent =
 document.getElementById("pnl").textContent =
 "P&L: ₹0";
 
-addTrade(
-tradeNumber,
-oldPosition.type,
-oldPosition.quantity,
-oldPosition.entry,
-exitPrice,
-oldPosition.sl,
-oldPosition.target,
-pnl
-);
+addTrade(trade);
 
 updateStats();
 
@@ -728,37 +892,31 @@ position = null;
 }
 
 
-/* ADD TRADE TO HISTORY */
+/* ADD TRADE */
 
-function addTrade(
-number,
-type,
-quantity,
-entry,
-exit,
-sl,
-target,
-pnl
-) {
+function addTrade(trade) {
 
-let trade =
+let tradeElement =
 document.createElement("div");
 
-trade.className = "trade";
+tradeElement.className =
+"trade";
 
-trade.textContent =
+tradeElement.textContent =
 
-"#" + number +
-" | " + type +
-" | Qty: " + quantity +
-" | Entry: ₹" + entry +
-" | Exit: ₹" + exit +
-" | SL: ₹" + sl +
-" | Target: ₹" + target +
-" | P&L: ₹" + pnl;
+"#" + trade.number +
+" | " + trade.type +
+" | Qty: " + trade.quantity +
+" | Entry: ₹" + trade.entry +
+" | Exit: ₹" + trade.exit +
+" | SL: ₹" + trade.sl +
+" | Target: ₹" + trade.target +
+" | P&L: ₹" + trade.pnl;
 
 document.getElementById("trades")
-.appendChild(trade);
+.appendChild(
+tradeElement
+);
 
 document.getElementById("totalPnl")
 .textContent =
@@ -796,6 +954,59 @@ losses;
 document.getElementById("winRate")
 .textContent =
 winRate.toFixed(2) + "%";
+}
+
+
+/* CLEAR ALL DATA */
+
+function clearAllData() {
+
+let confirmed =
+confirm(
+"Delete all saved trading data?"
+);
+
+if (!confirmed) {
+return;
+}
+
+localStorage.removeItem(
+"tradePracticeData"
+);
+
+balance = 50000;
+
+totalPnl = 0;
+
+tradeNumber = 0;
+
+wins = 0;
+
+losses = 0;
+
+tradeHistory = [];
+
+position = null;
+
+document.getElementById("balance").textContent =
+balance;
+
+document.getElementById("totalPnl").textContent =
+"Total P&L: ₹0";
+
+document.getElementById("positionInfo").textContent =
+"No open position";
+
+document.getElementById("pnl").textContent =
+"P&L: ₹0";
+
+document.getElementById("trades").textContent =
+"No trades yet";
+
+updateStats();
+
+document.getElementById("message").textContent =
+"All data cleared";
 }
 
 </script>
