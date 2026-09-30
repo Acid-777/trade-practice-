@@ -442,65 +442,81 @@ displayTrade(trade);
 
 function displayTrade(trade) {
 
-let container =
-document.getElementById("trades");
+  let container =
+    document.getElementById("trades");
 
-let element =
-document.createElement("div");
+  let element =
+    document.createElement("div");
 
-element.className =
-"trade";
+  let isWin = trade.pnl > 0;
 
-let result =
-trade.pnl > 0
-? "WIN"
-: trade.pnl < 0
-? "LOSS"
-: "BREAKEVEN";
+  element.className =
+    "trade " + (isWin ? "win" : "loss");
 
-let pnlText =
-trade.pnl > 0
-? "+₹" + trade.pnl
-: "₹" + trade.pnl;
+  let directionClass =
+    trade.type === "BUY"
+      ? "buy-badge"
+      : "sell-badge";
 
-element.innerHTML =
+  let resultClass =
+    isWin
+      ? "win-badge"
+      : "loss-badge";
 
-"<strong>Trade #" +
-trade.number +
-"</strong><br>" +
+  let result =
+    isWin ? "WIN" : "LOSS";
 
-trade.type +
-" · Qty: " +
-trade.quantity +
-"<br>" +
+  let pnlText =
+    trade.pnl > 0
+      ? "+₹" + trade.pnl
+      : "₹" + trade.pnl;
 
-"Entry: ₹" +
-trade.entry +
-" → Exit: ₹" +
-trade.exit +
-"<br>" +
+  element.innerHTML = `
 
-"SL: ₹" +
-trade.sl +
-" · Target: ₹" +
-trade.target +
-"<br>" +
+    <div class="trade-header">
 
-"Result: " +
-result +
-" · P&L: " +
-pnlText +
-"<br>" +
+      <span class="trade-number">
+        Trade #${trade.number}
+      </span>
 
-"Exit: " +
-trade.exitReason +
-"<br>" +
+      <span class="trade-pnl">
+        ${pnlText}
+      </span>
 
-"Date: " +
-trade.dateTime;
+    </div>
 
-container.appendChild(element);
+    <div>
 
+      <span class="badge ${directionClass}">
+        ${trade.type}
+      </span>
+
+      <span class="badge ${resultClass}">
+        ${result}
+      </span>
+
+      <span class="badge exit-badge">
+        ${trade.exitReason}
+      </span>
+
+    </div>
+
+    <div class="trade-details">
+
+      Qty: ${trade.quantity}<br>
+
+      Entry: ₹${trade.entry}
+      → Exit: ₹${trade.exit}<br>
+
+      SL: ₹${trade.sl}
+      · Target: ₹${trade.target}<br>
+
+      ${trade.dateTime}
+
+    </div>
+  `;
+
+  container.appendChild(element);
 }
 
 
