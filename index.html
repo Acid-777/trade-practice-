@@ -50,21 +50,34 @@
       color: white;
     }
 
+    .exit {
+      width: 92%;
+      background: #333;
+      color: white;
+    }
+
     .price {
       font-size: 28px;
       font-weight: bold;
       margin: 20px 0;
     }
 
-    #message {
+    .position {
       margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 10px;
     }
 
     #pnl {
       margin-top: 15px;
       font-size: 22px;
+      font-weight: bold;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 18px;
       font-weight: bold;
     }
   </style>
@@ -76,76 +89,207 @@
 
   <h1>Trade Practice</h1>
 
-  <h2>Virtual Balance: ₹50,000</h2>
+  <h2>
+    Virtual Balance: ₹<span id="balance">50000</span>
+  </h2>
 
   <div class="price">
     NIFTY 50<br>
-    25,000
+    <span id="niftyPrice">25000</span>
   </div>
 
-  <input type="number" id="quantity" placeholder="Quantity">
+  <input
+    type="number"
+    id="quantity"
+    placeholder="Quantity"
+  >
 
-  <input type="number" id="entryPrice" placeholder="Entry Price">
+  <input
+    type="number"
+    id="entryPrice"
+    placeholder="Entry Price"
+  >
 
-  <input type="number" id="currentPrice" placeholder="Current Price">
+  <input
+    type="number"
+    id="currentPrice"
+    placeholder="Current Price"
+  >
 
-  <button class="buy" onclick="buyTrade()">BUY</button>
+  <button class="buy" onclick="openBuy()">
+    BUY
+  </button>
 
-  <button class="sell" onclick="sellTrade()">SELL</button>
+  <button class="sell" onclick="openSell()">
+    SELL
+  </button>
+
+  <div class="position">
+
+    <h3>Open Position</h3>
+
+    <div id="positionInfo">
+      No open position
+    </div>
+
+    <div id="pnl">
+      P&L: ₹0
+    </div>
+
+    <button class="exit" onclick="exitTrade()">
+      EXIT POSITION
+    </button>
+
+  </div>
 
   <div id="message">
     Ready to trade
-  </div>
-
-  <div id="pnl">
-    P&L: ₹0
   </div>
 
 </div>
 
 <script>
 
-function buyTrade() {
+let position = null;
+
+let balance = 50000;
+
+
+function openBuy() {
 
   let quantity =
     Number(document.getElementById("quantity").value);
 
-  let entryPrice =
+  let entry =
     Number(document.getElementById("entryPrice").value);
 
-  let currentPrice =
-    Number(document.getElementById("currentPrice").value);
+  if (quantity <= 0 || entry <= 0) {
+    document.getElementById("message").textContent =
+      "Enter valid quantity and entry price";
 
-  let pnl =
-    (currentPrice - entryPrice) * quantity;
+    return;
+  }
+
+  position = {
+    type: "BUY",
+    quantity: quantity,
+    entry: entry
+  };
+
+  showPosition();
 
   document.getElementById("message").textContent =
-    "BUY position";
+    "BUY position opened";
+}
+
+
+function openSell() {
+
+  let quantity =
+    Number(document.getElementById("quantity").value);
+
+  let entry =
+    Number(document.getElementById("entryPrice").value);
+
+  if (quantity <= 0 || entry <= 0) {
+    document.getElementById("message").textContent =
+      "Enter valid quantity and entry price";
+
+    return;
+  }
+
+  position = {
+    type: "SELL",
+    quantity: quantity,
+    entry: entry
+  };
+
+  showPosition();
+
+  document.getElementById("message").textContent =
+    "SELL position opened";
+}
+
+
+function showPosition() {
+
+  if (!position) {
+    return;
+  }
+
+  let current =
+    Number(document.getElementById("currentPrice").value);
+
+  let pnl;
+
+  if (position.type === "BUY") {
+
+    pnl =
+      (current - position.entry) *
+      position.quantity;
+
+  } else {
+
+    pnl =
+      (position.entry - current) *
+      position.quantity;
+  }
+
+  document.getElementById("positionInfo").textContent =
+    position.type +
+    " | Qty: " +
+    position.quantity +
+    " | Entry: ₹" +
+    position.entry;
 
   document.getElementById("pnl").textContent =
     "P&L: ₹" + pnl;
 }
 
 
-function sellTrade() {
+function exitTrade() {
 
-  let quantity =
-    Number(document.getElementById("quantity").value);
+  if (!position) {
 
-  let entryPrice =
-    Number(document.getElementById("entryPrice").value);
+    document.getElementById("message").textContent =
+      "No open position";
 
-  let currentPrice =
+    return;
+  }
+
+  let current =
     Number(document.getElementById("currentPrice").value);
 
-  let pnl =
-    (entryPrice - currentPrice) * quantity;
+  let pnl;
 
-  document.getElementById("message").textContent =
-    "SELL position";
+  if (position.type === "BUY") {
+
+    pnl =
+      (current - position.entry) *
+      position.quantity;
+
+  } else {
+
+    pnl =
+      (position.entry - current) *
+      position.quantity;
+  }
+
+  balance = balance + pnl;
+
+  document.getElementById("balance").textContent =
+    balance;
+
+  document.getElementById("positionInfo").textContent =
+    "No open position";
 
   document.getElementById("pnl").textContent =
-    "P&L: ₹" + pnl;
+    "P&L: ₹0";
+
+  document.getElementById("message").textContent =
+    "Trade exited. P&L: ₹" + pnl;
+
+  position = null;
 }
 
 </script>
