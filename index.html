@@ -63,7 +63,8 @@ button {
 }
 
 .position,
-.history {
+.history,
+.stats {
   margin-top: 20px;
   padding: 15px;
   background: #f0f0f0;
@@ -82,6 +83,11 @@ button {
   padding: 10px;
   margin: 8px 0;
   border-radius: 8px;
+}
+
+.stat {
+  font-size: 18px;
+  margin: 8px;
 }
 </style>
 </head>
@@ -147,6 +153,28 @@ Total P&L: ₹0
 
 </div>
 
+<div class="stats">
+
+<h3>Trading Statistics</h3>
+
+<div class="stat">
+Total Trades: <span id="totalTrades">0</span>
+</div>
+
+<div class="stat">
+Winning Trades: <span id="wins">0</span>
+</div>
+
+<div class="stat">
+Losing Trades: <span id="losses">0</span>
+</div>
+
+<div class="stat">
+Win Rate: <span id="winRate">0%</span>
+</div>
+
+</div>
+
 </div>
 
 <script>
@@ -158,6 +186,10 @@ let balance = 50000;
 let totalPnl = 0;
 
 let tradeNumber = 0;
+
+let wins = 0;
+
+let losses = 0;
 
 
 function openBuy() {
@@ -286,6 +318,15 @@ totalPnl += pnl;
 
 tradeNumber++;
 
+if (pnl > 0) {
+
+wins++;
+
+} else if (pnl < 0) {
+
+losses++;
+}
+
 document.getElementById("balance").textContent =
 balance;
 
@@ -306,6 +347,8 @@ position.entry,
 current,
 pnl
 );
+
+updateStats();
 
 position = null;
 }
@@ -339,6 +382,37 @@ document.getElementById("trades")
 document.getElementById("totalPnl")
 .textContent =
 "Total P&L: ₹" + totalPnl;
+}
+
+
+function updateStats() {
+
+let total =
+wins + losses;
+
+let winRate = 0;
+
+if (total > 0) {
+
+winRate =
+(wins / total) * 100;
+}
+
+document.getElementById("totalTrades")
+.textContent =
+total;
+
+document.getElementById("wins")
+.textContent =
+wins;
+
+document.getElementById("losses")
+.textContent =
+losses;
+
+document.getElementById("winRate")
+.textContent =
+winRate.toFixed(2) + "%";
 }
 
 </script>
