@@ -61,6 +61,12 @@
       font-size: 18px;
       font-weight: bold;
     }
+
+    #pnl {
+      margin-top: 15px;
+      font-size: 22px;
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -81,12 +87,18 @@
 
   <input type="number" id="entryPrice" placeholder="Entry Price">
 
+  <input type="number" id="currentPrice" placeholder="Current Price">
+
   <button class="buy" onclick="buyTrade()">BUY</button>
 
   <button class="sell" onclick="sellTrade()">SELL</button>
 
   <div id="message">
     Ready to trade
+  </div>
+
+  <div id="pnl">
+    P&L: ₹0
   </div>
 
 </div>
@@ -96,27 +108,44 @@
 function buyTrade() {
 
   let quantity =
-    document.getElementById("quantity").value;
+    Number(document.getElementById("quantity").value);
 
   let entryPrice =
-    document.getElementById("entryPrice").value;
+    Number(document.getElementById("entryPrice").value);
+
+  let currentPrice =
+    Number(document.getElementById("currentPrice").value);
+
+  let pnl =
+    (currentPrice - entryPrice) * quantity;
 
   document.getElementById("message").textContent =
-    "BUY: " + quantity +
-    " qty @ ₹" + entryPrice;
+    "BUY position";
+
+  document.getElementById("pnl").textContent =
+    "P&L: ₹" + pnl;
 }
+
 
 function sellTrade() {
 
   let quantity =
-    document.getElementById("quantity").value;
+    Number(document.getElementById("quantity").value);
 
   let entryPrice =
-    document.getElementById("entryPrice").value;
+    Number(document.getElementById("entryPrice").value);
+
+  let currentPrice =
+    Number(document.getElementById("currentPrice").value);
+
+  let pnl =
+    (entryPrice - currentPrice) * quantity;
 
   document.getElementById("message").textContent =
-    "SELL: " + quantity +
-    " qty @ ₹" + entryPrice;
+    "SELL position";
+
+  document.getElementById("pnl").textContent =
+    "P&L: ₹" + pnl;
 }
 
 </script>
