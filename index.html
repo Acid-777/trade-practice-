@@ -64,7 +64,8 @@ button {
 
 .position,
 .history,
-.stats {
+.stats,
+.risk {
   margin-top: 20px;
   padding: 15px;
   background: #f0f0f0;
@@ -72,7 +73,8 @@ button {
 }
 
 #pnl,
-#totalPnl {
+#totalPnl,
+#riskReward {
   margin-top: 15px;
   font-size: 22px;
   font-weight: bold;
@@ -112,6 +114,20 @@ NIFTY 50<br>
 <input type="number" id="entryPrice" placeholder="Entry Price">
 
 <input type="number" id="currentPrice" placeholder="Current Price">
+
+<div class="risk">
+
+<h3>Risk Management</h3>
+
+<input type="number" id="stopLoss" placeholder="Stop Loss">
+
+<input type="number" id="target" placeholder="Target">
+
+<div id="riskReward">
+Risk : Reward = -
+</div>
+
+</div>
 
 <button class="buy" onclick="openBuy()">BUY</button>
 
@@ -192,6 +208,58 @@ let wins = 0;
 let losses = 0;
 
 
+function calculateRiskReward() {
+
+let entry =
+Number(document.getElementById("entryPrice").value);
+
+let sl =
+Number(document.getElementById("stopLoss").value);
+
+let target =
+Number(document.getElementById("target").value);
+
+if (entry <= 0 || sl <= 0 || target <= 0) {
+
+document.getElementById("riskReward").textContent =
+"Risk : Reward = -";
+
+return;
+}
+
+let risk =
+Math.abs(entry - sl);
+
+let reward =
+Math.abs(target - entry);
+
+if (risk === 0) {
+
+document.getElementById("riskReward").textContent =
+"Risk : Reward = -";
+
+return;
+}
+
+let ratio =
+reward / risk;
+
+document.getElementById("riskReward").textContent =
+"Risk : Reward = 1 : " +
+ratio.toFixed(2);
+}
+
+
+document.getElementById("entryPrice")
+.addEventListener("input", calculateRiskReward);
+
+document.getElementById("stopLoss")
+.addEventListener("input", calculateRiskReward);
+
+document.getElementById("target")
+.addEventListener("input", calculateRiskReward);
+
+
 function openBuy() {
 
 let quantity =
@@ -200,18 +268,37 @@ Number(document.getElementById("quantity").value);
 let entry =
 Number(document.getElementById("entryPrice").value);
 
-if (quantity <= 0 || entry <= 0) {
+let sl =
+Number(document.getElementById("stopLoss").value);
+
+let target =
+Number(document.getElementById("target").value);
+
+if (
+quantity <= 0 ||
+entry <= 0 ||
+sl <= 0 ||
+target <= 0
+) {
 
 document.getElementById("message").textContent =
-"Enter valid quantity and entry price";
+"Enter valid trade values";
 
 return;
 }
 
 position = {
+
 type: "BUY",
+
 quantity: quantity,
-entry: entry
+
+entry: entry,
+
+sl: sl,
+
+target: target
+
 };
 
 showPosition();
@@ -229,18 +316,37 @@ Number(document.getElementById("quantity").value);
 let entry =
 Number(document.getElementById("entryPrice").value);
 
-if (quantity <= 0 || entry <= 0) {
+let sl =
+Number(document.getElementById("stopLoss").value);
+
+let target =
+Number(document.getElementById("target").value);
+
+if (
+quantity <= 0 ||
+entry <= 0 ||
+sl <= 0 ||
+target <= 0
+) {
 
 document.getElementById("message").textContent =
-"Enter valid quantity and entry price";
+"Enter valid trade values";
 
 return;
 }
 
 position = {
+
 type: "SELL",
+
 quantity: quantity,
-entry: entry
+
+entry: entry,
+
+sl: sl,
+
+target: target
+
 };
 
 showPosition();
@@ -273,11 +379,16 @@ position.quantity;
 }
 
 document.getElementById("positionInfo").textContent =
+
 position.type +
 " | Qty: " +
 position.quantity +
 " | Entry: ₹" +
-position.entry;
+position.entry +
+" | SL: ₹" +
+position.sl +
+" | Target: ₹" +
+position.target;
 
 document.getElementById("pnl").textContent =
 "P&L: ₹" + pnl;
@@ -345,6 +456,8 @@ position.type,
 position.quantity,
 position.entry,
 current,
+position.sl,
+position.target,
 pnl
 );
 
@@ -360,6 +473,8 @@ type,
 quantity,
 entry,
 exit,
+sl,
+target,
 pnl
 ) {
 
@@ -369,11 +484,14 @@ document.createElement("div");
 trade.className = "trade";
 
 trade.textContent =
+
 "#" + number +
 " | " + type +
 " | Qty: " + quantity +
 " | Entry: ₹" + entry +
 " | Exit: ₹" + exit +
+" | SL: ₹" + sl +
+" | Target: ₹" + target +
 " | P&L: ₹" + pnl;
 
 document.getElementById("trades")
