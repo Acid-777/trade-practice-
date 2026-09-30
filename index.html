@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Trade Practice</title>
 
   <style>
@@ -23,20 +22,12 @@
       border-radius: 15px;
     }
 
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    .balance {
-      font-size: 22px;
-      font-weight: bold;
-      margin: 20px 0;
-    }
-
-    .price {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 20px 0;
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 18px;
+      box-sizing: border-box;
     }
 
     button {
@@ -47,7 +38,6 @@
       border-radius: 10px;
       font-size: 18px;
       font-weight: bold;
-      cursor: pointer;
     }
 
     .buy {
@@ -60,6 +50,12 @@
       color: white;
     }
 
+    .price {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
     #message {
       margin-top: 20px;
       font-size: 18px;
@@ -70,46 +66,60 @@
 
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <h1>Trade Practice</h1>
+  <h1>Trade Practice</h1>
 
-    <div class="balance">
-      Virtual Balance: ₹50,000
-    </div>
+  <h2>Virtual Balance: ₹50,000</h2>
 
-    <div class="price">
-      NIFTY 50<br>
-      <span id="niftyPrice">25,000</span>
-    </div>
-
-    <button class="buy" onclick="buyTrade()">
-      BUY
-    </button>
-
-    <button class="sell" onclick="sellTrade()">
-      SELL
-    </button>
-
-    <div id="message">
-      Ready to trade
-    </div>
-
+  <div class="price">
+    NIFTY 50<br>
+    25,000
   </div>
 
-  <script>
+  <input type="number" id="quantity" placeholder="Quantity">
 
-    function buyTrade() {
-      document.getElementById("message").textContent =
-        "BUY order selected";
-    }
+  <input type="number" id="entryPrice" placeholder="Entry Price">
 
-    function sellTrade() {
-      document.getElementById("message").textContent =
-        "SELL order selected";
-    }
+  <button class="buy" onclick="buyTrade()">BUY</button>
 
-  </script>
+  <button class="sell" onclick="sellTrade()">SELL</button>
+
+  <div id="message">
+    Ready to trade
+  </div>
+
+</div>
+
+<script>
+
+function buyTrade() {
+
+  let quantity =
+    document.getElementById("quantity").value;
+
+  let entryPrice =
+    document.getElementById("entryPrice").value;
+
+  document.getElementById("message").textContent =
+    "BUY: " + quantity +
+    " qty @ ₹" + entryPrice;
+}
+
+function sellTrade() {
+
+  let quantity =
+    document.getElementById("quantity").value;
+
+  let entryPrice =
+    document.getElementById("entryPrice").value;
+
+  document.getElementById("message").textContent =
+    "SELL: " + quantity +
+    " qty @ ₹" + entryPrice;
+}
+
+</script>
 
 </body>
 </html>
