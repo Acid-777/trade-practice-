@@ -95,11 +95,12 @@ button {
 
 .trade {
   background: white;
-  padding: 10px;
-  margin: 8px 0;
+  padding: 12px;
+  margin: 10px 0;
   border-radius: 8px;
   text-align: left;
   font-size: 14px;
+  line-height: 1.6;
 }
 
 .stat {
@@ -209,7 +210,7 @@ Ready to trade
 
 <div class="history">
 
-<h3>Trade History</h3>
+<h3>Trade Journal</h3>
 
 <div id="trades">
 No trades yet
@@ -272,7 +273,7 @@ let losses = 0;
 let tradeHistory = [];
 
 
-/* LOAD SAVED DATA */
+/* LOAD DATA */
 
 function loadData() {
 
@@ -280,7 +281,7 @@ let savedData =
 localStorage.getItem("tradePracticeData");
 
 if (!savedData) {
-  return;
+return;
 }
 
 try {
@@ -343,47 +344,95 @@ JSON.stringify(data)
 }
 
 
-/* DISPLAY SAVED HISTORY */
+/* DISPLAY HISTORY */
 
 function displaySavedHistory() {
 
-let tradesContainer =
+let container =
 document.getElementById("trades");
 
-tradesContainer.innerHTML = "";
+container.innerHTML = "";
 
 if (tradeHistory.length === 0) {
 
-tradesContainer.textContent =
+container.textContent =
 "No trades yet";
 
 return;
+
 }
 
 tradeHistory.forEach(function(trade) {
 
-let tradeElement =
-document.createElement("div");
-
-tradeElement.className =
-"trade";
-
-tradeElement.textContent =
-
-"#" + trade.number +
-" | " + trade.type +
-" | Qty: " + trade.quantity +
-" | Entry: ₹" + trade.entry +
-" | Exit: ₹" + trade.exit +
-" | SL: ₹" + trade.sl +
-" | Target: ₹" + trade.target +
-" | P&L: ₹" + trade.pnl;
-
-tradesContainer.appendChild(
-tradeElement
-);
+displayTrade(trade);
 
 });
+
+}
+
+
+/* DISPLAY ONE TRADE */
+
+function displayTrade(trade) {
+
+let container =
+document.getElementById("trades");
+
+let element =
+document.createElement("div");
+
+element.className =
+"trade";
+
+let result =
+trade.pnl > 0
+? "WIN"
+: trade.pnl < 0
+? "LOSS"
+: "BREAKEVEN";
+
+let pnlText =
+trade.pnl > 0
+? "+₹" + trade.pnl
+: "₹" + trade.pnl;
+
+element.innerHTML =
+
+"<strong>Trade #" +
+trade.number +
+"</strong><br>" +
+
+trade.type +
+" · Qty: " +
+trade.quantity +
+"<br>" +
+
+"Entry: ₹" +
+trade.entry +
+" → Exit: ₹" +
+trade.exit +
+"<br>" +
+
+"SL: ₹" +
+trade.sl +
+" · Target: ₹" +
+trade.target +
+"<br>" +
+
+"Result: " +
+result +
+" · P&L: " +
+pnlText +
+"<br>" +
+
+"Exit: " +
+trade.exitReason +
+"<br>" +
+
+"Date: " +
+trade.dateTime;
+
+container.appendChild(element);
 
 }
 
@@ -403,7 +452,7 @@ updateStats();
 displaySavedHistory();
 
 
-/* RISK / REWARD */
+/* RISK REWARD */
 
 function calculateRiskReward() {
 
@@ -426,6 +475,7 @@ document.getElementById("riskReward").textContent =
 "Risk : Reward = -";
 
 return;
+
 }
 
 let risk =
@@ -440,6 +490,7 @@ document.getElementById("riskReward").textContent =
 "Risk : Reward = -";
 
 return;
+
 }
 
 let ratio =
@@ -448,6 +499,7 @@ reward / risk;
 document.getElementById("riskReward").textContent =
 "Risk : Reward = 1:" +
 ratio.toFixed(2);
+
 }
 
 
@@ -480,6 +532,7 @@ document.getElementById("message").textContent =
 "Close the existing position first";
 
 return;
+
 }
 
 let quantity =
@@ -505,6 +558,7 @@ document.getElementById("message").textContent =
 "Enter valid trade values";
 
 return;
+
 }
 
 if (sl >= entry) {
@@ -513,6 +567,7 @@ document.getElementById("message").textContent =
 "For BUY, SL must be below Entry";
 
 return;
+
 }
 
 if (target <= entry) {
@@ -521,6 +576,7 @@ document.getElementById("message").textContent =
 "For BUY, Target must be above Entry";
 
 return;
+
 }
 
 position = {
@@ -541,6 +597,7 @@ showPosition();
 
 document.getElementById("message").textContent =
 "BUY position opened";
+
 }
 
 
@@ -554,6 +611,7 @@ document.getElementById("message").textContent =
 "Close the existing position first";
 
 return;
+
 }
 
 let quantity =
@@ -579,6 +637,7 @@ document.getElementById("message").textContent =
 "Enter valid trade values";
 
 return;
+
 }
 
 if (sl <= entry) {
@@ -587,6 +646,7 @@ document.getElementById("message").textContent =
 "For SELL, SL must be above Entry";
 
 return;
+
 }
 
 if (target >= entry) {
@@ -595,6 +655,7 @@ document.getElementById("message").textContent =
 "For SELL, Target must be below Entry";
 
 return;
+
 }
 
 position = {
@@ -615,6 +676,7 @@ showPosition();
 
 document.getElementById("message").textContent =
 "SELL position opened";
+
 }
 
 
@@ -642,6 +704,7 @@ position.quantity;
 pnl =
 (position.entry - current) *
 position.quantity;
+
 }
 
 document.getElementById("positionInfo").textContent =
@@ -658,6 +721,7 @@ position.target;
 
 document.getElementById("pnl").textContent =
 "P&L: ₹" + pnl;
+
 }
 
 
@@ -674,6 +738,7 @@ document.getElementById("message").textContent =
 "Enter a valid current price";
 
 return;
+
 }
 
 if (!position) {
@@ -682,6 +747,7 @@ document.getElementById("message").textContent =
 "Price updated";
 
 return;
+
 }
 
 showPosition();
@@ -693,20 +759,22 @@ if (current <= position.sl) {
 
 closeAutomatically(
 position.sl,
-"STOP LOSS HIT"
+"STOP LOSS"
 );
 
 return;
+
 }
 
 if (current >= position.target) {
 
 closeAutomatically(
 position.target,
-"TARGET HIT"
+"TARGET"
 );
 
 return;
+
 }
 
 }
@@ -718,20 +786,22 @@ if (current >= position.sl) {
 
 closeAutomatically(
 position.sl,
-"STOP LOSS HIT"
+"STOP LOSS"
 );
 
 return;
+
 }
 
 if (current <= position.target) {
 
 closeAutomatically(
 position.target,
-"TARGET HIT"
+"TARGET"
 );
 
 return;
+
 }
 
 }
@@ -762,17 +832,20 @@ position.quantity;
 pnl =
 (position.entry - exitPrice) *
 position.quantity;
+
 }
 
 recordTrade(
 exitPrice,
-pnl
+pnl,
+reason
 );
 
 document.getElementById("message").textContent =
 reason +
-" | P&L: ₹" +
+" HIT | P&L: ₹" +
 pnl;
+
 }
 
 
@@ -786,6 +859,7 @@ document.getElementById("message").textContent =
 "No open position";
 
 return;
+
 }
 
 let current =
@@ -797,6 +871,7 @@ document.getElementById("message").textContent =
 "Enter current price first";
 
 return;
+
 }
 
 let pnl;
@@ -812,16 +887,19 @@ position.quantity;
 pnl =
 (position.entry - current) *
 position.quantity;
+
 }
 
 recordTrade(
 current,
-pnl
+pnl,
+"MANUAL"
 );
 
 document.getElementById("message").textContent =
-"Trade exited | P&L: ₹" +
+"MANUAL EXIT | P&L: ₹" +
 pnl;
+
 }
 
 
@@ -829,7 +907,8 @@ pnl;
 
 function recordTrade(
 exitPrice,
-pnl
+pnl,
+exitReason
 ) {
 
 let oldPosition =
@@ -848,8 +927,8 @@ wins++;
 } else if (pnl < 0) {
 
 losses++;
-}
 
+}
 
 let trade = {
 
@@ -867,7 +946,12 @@ sl: oldPosition.sl,
 
 target: oldPosition.target,
 
-pnl: pnl
+pnl: pnl,
+
+exitReason: exitReason,
+
+dateTime: new Date()
+.toLocaleString()
 
 };
 
@@ -884,43 +968,16 @@ document.getElementById("positionInfo").textContent =
 document.getElementById("pnl").textContent =
 "P&L: ₹0";
 
-addTrade(trade);
+displayTrade(trade);
+
+document.getElementById("totalPnl").textContent =
+"Total P&L: ₹" +
+totalPnl;
 
 updateStats();
 
 position = null;
-}
 
-
-/* ADD TRADE */
-
-function addTrade(trade) {
-
-let tradeElement =
-document.createElement("div");
-
-tradeElement.className =
-"trade";
-
-tradeElement.textContent =
-
-"#" + trade.number +
-" | " + trade.type +
-" | Qty: " + trade.quantity +
-" | Entry: ₹" + trade.entry +
-" | Exit: ₹" + trade.exit +
-" | SL: ₹" + trade.sl +
-" | Target: ₹" + trade.target +
-" | P&L: ₹" + trade.pnl;
-
-document.getElementById("trades")
-.appendChild(
-tradeElement
-);
-
-document.getElementById("totalPnl")
-.textContent =
-"Total P&L: ₹" + totalPnl;
 }
 
 
@@ -937,6 +994,7 @@ if (total > 0) {
 
 winRate =
 (wins / total) * 100;
+
 }
 
 document.getElementById("totalTrades")
@@ -954,10 +1012,11 @@ losses;
 document.getElementById("winRate")
 .textContent =
 winRate.toFixed(2) + "%";
+
 }
 
 
-/* CLEAR ALL DATA */
+/* CLEAR DATA */
 
 function clearAllData() {
 
@@ -1007,6 +1066,7 @@ updateStats();
 
 document.getElementById("message").textContent =
 "All data cleared";
+
 }
 
 </script>
