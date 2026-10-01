@@ -352,6 +352,26 @@ Profit Factor:
 <span id="profitFactor">0</span>
 </div>
 
+<div class="stat">
+Peak Equity:
+<span id="peakEquity">₹0</span>
+</div>
+
+<div class="stat">
+Current Drawdown:
+<span id="currentDrawdown">₹0</span>
+</div>
+
+<div class="stat">
+Maximum Drawdown:
+<span id="maxDrawdown">₹0</span>
+</div>
+
+<div class="stat">
+Maximum Drawdown %:
+<span id="maxDrawdownPercent">0%</span>
+</div>
+
 </div>
 
 <div class="equity-section">
@@ -1172,6 +1192,45 @@ function updateStats() {
 
   }
 
+let equity = 50000;
+
+let peakEquity = 50000;
+
+let maxDrawdown = 0;
+
+tradeHistory.forEach(function(trade) {
+
+  equity += trade.pnl;
+
+  if (equity > peakEquity) {
+
+    peakEquity = equity;
+
+  }
+
+  let drawdown =
+    peakEquity - equity;
+
+  if (drawdown > maxDrawdown) {
+
+    maxDrawdown = drawdown;
+
+  }
+
+});
+
+let currentDrawdown =
+  peakEquity - equity;
+
+let maxDrawdownPercent = 0;
+
+if (peakEquity > 0) {
+
+  maxDrawdownPercent =
+    (maxDrawdown / peakEquity) * 100;
+
+}
+
   document.getElementById("dashboardPnl")
     .textContent =
     "₹" + totalPnl;
@@ -1206,6 +1265,22 @@ function updateStats() {
 
 }
 
+document.getElementById("peakEquity")
+  .textContent =
+  "₹" + peakEquity.toFixed(2);
+
+document.getElementById("currentDrawdown")
+  .textContent =
+  "₹" + currentDrawdown.toFixed(2);
+
+document.getElementById("maxDrawdown")
+  .textContent =
+  "₹" + maxDrawdown.toFixed(2);
+
+document.getElementById("maxDrawdownPercent")
+  .textContent =
+  maxDrawdownPercent.toFixed(2) + "%";
+  
 /* CLEAR DATA */
 
 function clearAllData() {
