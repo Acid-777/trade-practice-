@@ -84,6 +84,19 @@ button {
   background: #f0f0f0;
   border-radius: 10px;
 }
+.equity-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+#equityChart {
+  width: 100%;
+  height: 220px;
+  background: white;
+  border-radius: 10px;
+}
 
 #pnl,
 #totalPnl,
@@ -554,6 +567,7 @@ updateStats();
 
 displaySavedHistory();
 
+drawEquityCurve();
 
 /* RISK REWARD */
 
@@ -1079,10 +1093,11 @@ totalPnl;
 
 updateStats();
 
+drawEquityCurve();
+
 position = null;
 
 }
-
 
 /* STATISTICS */
 
@@ -1229,6 +1244,141 @@ updateStats();
 
 document.getElementById("message").textContent =
 "All data cleared";
+
+}
+function drawEquityCurve() {
+
+  const canvas =
+    document.getElementById("equityChart");
+
+  if (!canvas) {
+    return;
+  }
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  let startingBalance = 50000;
+
+  let equity = startingBalance;
+
+  let points = [
+    equity
+  ];
+
+  tradeHistory.forEach(function(trade) {
+
+    equity += trade.pnl;
+
+    points.push(equity);
+
+  });
+
+  if (points.length < 2) {
+    return;
+  }
+
+  let min =
+    Math.min(...points);
+
+  let max =
+    Math.max(...points);
+
+  if (min === max) {
+    max = min + 1;
+  }
+
+  let padding = 25;
+
+  let chartWidth =
+    canvas.width - padding * 2;
+
+  let chartHeight =
+    canvas.height - padding * 2;
+
+  ctx.beginPath();
+
+  points.forEach(function(value, index) {
+
+    let x =
+      padding +
+      (index / (points.length - 1))
+      * chartWidth;
+
+    let y =
+      padding +
+      (1 -
+        (value - min) /
+        (max - min)
+      ) *
+      chartHeight;
+
+    if (index === 0) {
+
+      ctx.moveTo(x, y);
+
+    } else {
+
+      ctx.lineTo(x, y);
+
+    }
+
+  });
+
+  ctx.strokeStyle =
+    "#1976d2";
+
+  ctx.lineWidth = 3;
+
+  ctx.stroke();
+
+
+  let startY =
+    padding +
+    (1 -
+      (startingBalance - min) /
+      (max - min)
+    ) *
+    chartHeight;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    padding,
+    startY
+  );
+
+  ctx.lineTo(
+    canvas.width - padding,
+    startY
+  );
+
+  ctx.strokeStyle =
+    "#999";
+
+  ctx.lineWidth = 1;
+
+  ctx.stroke();
+
+
+  ctx.fillStyle =
+    "#111";
+
+  ctx.font =
+    "14px Arial";
+
+  ctx.fillText(
+    "₹" + Math.round(equity),
+    padding,
+    18
+  );
 
 }
 
