@@ -1143,20 +1143,70 @@ function updateStats() {
   let totalWinningPnl = 0;
 
   let totalLosingPnl = 0;
+  
+  let totalR = 0;
+
+let bestR = -Infinity;
+
+let worstR = Infinity;
+
+let validRTrades = 0;
 
   tradeHistory.forEach(function(trade) {
 
-    if (trade.pnl > 0) {
+  if (trade.pnl > 0) {
 
-      totalWinningPnl += trade.pnl;
+    totalWinningPnl += trade.pnl;
 
-    } else if (trade.pnl < 0) {
+  } else if (trade.pnl < 0) {
 
-      totalLosingPnl += Math.abs(trade.pnl);
+    totalLosingPnl += Math.abs(trade.pnl);
+
+  }
+
+  let risk =
+    Math.abs(trade.entry - trade.sl);
+
+  if (risk > 0) {
+
+    let rMultiple =
+      (trade.exit - trade.entry) / risk;
+
+    if (trade.type === "SELL") {
+
+      rMultiple =
+        (trade.entry - trade.exit) / risk;
 
     }
 
-  });
+    totalR += rMultiple;
+
+    validRTrades++;
+
+    if (rMultiple > bestR) {
+
+      bestR = rMultiple;
+
+    }
+
+    if (rMultiple < worstR) {
+
+      worstR = rMultiple;
+
+    }
+
+  }
+
+});
+
+let averageR = 0;
+
+if (validRTrades > 0) {
+
+  averageR =
+    totalR / validRTrades;
+
+}
 
   if (total > 0) {
 
@@ -1284,6 +1334,26 @@ document.getElementById("maxDrawdown")
 document.getElementById("maxDrawdownPercent")
   .textContent =
   maxDrawdownPercent.toFixed(2) + "%";
+  
+  document.getElementById("averageR")
+  .textContent =
+  averageR.toFixed(2) + "R";
+
+document.getElementById("bestR")
+  .textContent =
+  validRTrades > 0
+    ? bestR.toFixed(2) + "R"
+    : "0R";
+
+document.getElementById("worstR")
+  .textContent =
+  validRTrades > 0
+    ? worstR.toFixed(2) + "R"
+    : "0R";
+
+document.getElementById("totalR")
+  .textContent =
+  totalR.toFixed(2) + "R";
   
 }
   
