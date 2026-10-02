@@ -1185,10 +1185,14 @@ function updateStats() {
 
   let profitFactor = 0;
 
-  if (totalLosingPnl > 0) {
+if (totalLosingPnl > 0) {
 
-    profitFactor =
-      totalWinningPnl / totalLosingPnl;
+  profitFactor =
+    totalWinningPnl / totalLosingPnl;
+
+} else if (totalWinningPnl > 0) {
+
+  profitFactor = Infinity;
 
   }
 
@@ -1260,8 +1264,10 @@ if (peakEquity > 0) {
     "₹" + averageLoss.toFixed(2);
 
   document.getElementById("profitFactor")
-    .textContent =
-    profitFactor.toFixed(2);
+  .textContent =
+  profitFactor === Infinity
+    ? "∞"
+    : profitFactor.toFixed(2);
 
 document.getElementById("peakEquity")
   .textContent =
